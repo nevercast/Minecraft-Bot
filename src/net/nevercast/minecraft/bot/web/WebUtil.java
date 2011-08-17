@@ -43,6 +43,11 @@ public class WebUtil {
          Certificate[] certs = connection.getServerCertificates();
 
          byte[] bytes = new byte[294];
+
+         /* minecraft.key can be found in the Linux launcher jar file from minecraft.net
+            I'm not sure what the rights are for uploading they key, so you will have to download it
+            yourself.
+          */
          DataInputStream dis = new DataInputStream(WebUtil.class.getResourceAsStream("minecraft.key"));
          dis.readFully(bytes);
          dis.close();

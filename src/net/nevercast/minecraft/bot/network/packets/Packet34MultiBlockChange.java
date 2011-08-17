@@ -55,8 +55,8 @@ public class Packet34MultiBlockChange implements IPacket{
         objectInput.readFully(meta);
         for(int i = 0; i < size; i++){
             blockInfos[i] = new BlockInfo();
-            blockInfos[i].BlockType = types[i];
-            blockInfos[i].BlockData = meta[i];
+            blockInfos[i].blockType = types[i];
+            blockInfos[i].blockData = meta[i];
         }
     }
 }

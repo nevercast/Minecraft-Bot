@@ -42,7 +42,7 @@ public class Packet35BlockChange implements IPacket {
                 objectInput.readInt()
         );
         blockInfo = new BlockInfo();
-        blockInfo.BlockType = objectInput.readByte();
-        blockInfo.BlockData = objectInput.readByte();
+        blockInfo.blockType = objectInput.readByte();
+        blockInfo.blockData = objectInput.readByte();
     }
 }

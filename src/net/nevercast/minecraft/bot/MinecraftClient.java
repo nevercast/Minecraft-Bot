@@ -11,9 +11,11 @@ import net.nevercast.minecraft.bot.network.PacketInputStream;
 import net.nevercast.minecraft.bot.network.PacketOutputStream;
 import net.nevercast.minecraft.bot.network.packets.*;
 import net.nevercast.minecraft.bot.web.MinecraftLogin;
+import net.nevercast.minecraft.bot.world.World;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.zip.DataFormatException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,6 +38,7 @@ public class MinecraftClient extends Thread implements GamePulser.IGamePulserRec
     private short health;
     private byte dimension;
     private EntityPool entityPool;
+    private World world;
 
     private int myEntId;
 
@@ -45,6 +48,7 @@ public class MinecraftClient extends Thread implements GamePulser.IGamePulserRec
         tickSource.start();
         initInventory();
         entityPool = new EntityPool();
+        world = new World();
     }
 
     private void setInventoryItem(int slot, ItemStack itemStack){
@@ -110,7 +114,18 @@ public class MinecraftClient extends Thread implements GamePulser.IGamePulserRec
             case 0x14: handlePlayerSpawned((Packet14NamedEntitySpawn)mcPacket); break;
             case 0x15: handleItemSpawn((Packet15ItemSpawned)mcPacket); break;
             case 0x28: handleEntMeta((Packet28EntityMetadata)mcPacket); break;
+            case 0x33: handleMapChunk((Packet33MapChunk)mcPacket); break;
             case (byte)0xFF: handleDisconnect((PacketFFDisconnect)mcPacket); break;
+        }
+    }
+
+    private void handleMapChunk(Packet33MapChunk packet) throws IOException{
+        try {
+            world.updateChunk(packet.getLocation(), packet.getSize(), packet.getCompressedData());
+        } catch (IOException e) {
+            throw e;
+        } catch (DataFormatException e) {
+            throw new IOException(e);
         }
     }
 
