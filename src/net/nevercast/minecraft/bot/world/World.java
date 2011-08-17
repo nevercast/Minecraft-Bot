@@ -1,5 +1,6 @@
 package net.nevercast.minecraft.bot.world;
 
+import net.nevercast.minecraft.bot.structs.Location;
 import net.nevercast.minecraft.bot.structs.Vector;
 
 import java.io.IOException;
@@ -54,6 +55,10 @@ public class World {
         return loadedChunks.size();
     }
 
+    public Chunk getChunkAt(Location location){
+        return getChunk((int)location.X >> 4, (int)location.Z >> 4);
+    }
+
     public Chunk[] getLoadedChunks(){
         return loadedChunks.toArray(new Chunk[0]);
     }
@@ -79,7 +84,7 @@ public class World {
         Chunk chunk = getChunk(chunkX, chunkZ);
         //entire chunk
         if(length == 81920){
-            System.out.println("Full chunk update: " + chunkX + ", " + chunkZ);
+            //System.out.println("Full chunk update: " + chunkX + ", " + chunkZ);
             chunk.blockTypes = typeData;
             for(int i = 0; i < metaData.length; i++){
                 chunk.blockData[i * 2] = (byte)(metaData[i] & 0x0F);
@@ -90,7 +95,7 @@ public class World {
                 chunk.skyLight[i * 2 + 1] = (byte)(skyData[i] >> 4);
             }
         }else{
-            System.out.println("Unsupported small chunk update: " + chunkX + ", " + chunkZ);
+            //System.out.println("Unsupported small chunk update: " + chunkX + ", " + chunkZ);
         }
     }
 }

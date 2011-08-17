@@ -11,6 +11,8 @@ import net.nevercast.minecraft.bot.network.PacketInputStream;
 import net.nevercast.minecraft.bot.network.PacketOutputStream;
 import net.nevercast.minecraft.bot.network.packets.*;
 import net.nevercast.minecraft.bot.web.MinecraftLogin;
+import net.nevercast.minecraft.bot.world.Block;
+import net.nevercast.minecraft.bot.world.Chunk;
 import net.nevercast.minecraft.bot.world.World;
 
 import java.io.IOException;
@@ -166,7 +168,37 @@ public class MinecraftClient extends Thread implements GamePulser.IGamePulserRec
             if(!message.contains(" "))
                 return;
             String who = message.split(" ")[1];
-
+        }else if(message.equalsIgnoreCase("echo mob count")){
+            sendMessage("Mobs: " + entityPool.getMobs().length);
+        }else if(message.equalsIgnoreCase("echo player count")){
+            sendMessage("Players: " + entityPool.getPlayers().length);
+        }else if(message.equalsIgnoreCase("echo loaded chunks")){
+            sendMessage("Loaded chunks: " + world.getChunkCount());
+        }else if(message.equalsIgnoreCase("echo location")){
+            sendMessage("Location: " + location.X + ", " + location.Y + ", " + location.Z);
+        }else if(message.equalsIgnoreCase("echo current chunk")){
+            Chunk c = world.getChunkAt(location);
+            if(c == null){
+                sendMessage("Chunk not loaded");
+            }else{
+                sendMessage("Chunk: " + c.getX() + ", " + c.getZ());
+            }
+        }else if(message.equalsIgnoreCase("echo surface position")){
+            Chunk c = world.getChunkAt(location);
+            if(c == null){
+                sendMessage("Chunk not loaded");
+            }else{
+                int y = (int)location.Y;
+                for(; y > 0; y--){
+                    Block block = c.getRelativeBlockAt((int)location.X & 0x0f, y, (int)location.Z & 0x0f);
+                    if(block.getInfo().blockType != 0){
+                        Vector surfLoc = block.getLocation();
+                        sendMessage("Surface: " + surfLoc.X + ", " + surfLoc.Y + ", " + surfLoc.Z + " (" + block.getInfo().blockType + ")");
+                        return;
+                    }
+                }
+                sendMessage("Failed to find surface!");
+            }
         }
     }
 
