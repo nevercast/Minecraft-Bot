@@ -177,20 +177,22 @@ public class MinecraftClient extends Thread implements GamePulser.IGamePulserRec
         }else if(message.equalsIgnoreCase("echo location")){
             sendMessage("Location: " + location.X + ", " + location.Y + ", " + location.Z);
         }else if(message.equalsIgnoreCase("echo current chunk")){
-            Chunk c = world.getChunkAt(location);
+            Chunk c = world.getChunkAt(location.toVector());
             if(c == null){
                 sendMessage("Chunk not loaded");
             }else{
                 sendMessage("Chunk: " + c.getX() + ", " + c.getZ());
             }
         }else if(message.equalsIgnoreCase("echo surface position")){
-            Chunk c = world.getChunkAt(location);
+            Chunk c = world.getChunkAt(location.toVector());
             if(c == null){
                 sendMessage("Chunk not loaded");
             }else{
                 int y = (int)location.Y;
+                Vector blockPosition = location.toVector();
                 for(; y > 0; y--){
-                    Block block = c.getRelativeBlockAt((int)location.X & 0x0f, y, (int)location.Z & 0x0f);
+                    blockPosition.Y = y;
+                    Block block = world.getBlockAt(blockPosition);
                     if(block.getInfo().blockType != 0){
                         Vector surfLoc = block.getLocation();
                         sendMessage("Surface: " + surfLoc.X + ", " + surfLoc.Y + ", " + surfLoc.Z + " (" + block.getInfo().blockType + ")");

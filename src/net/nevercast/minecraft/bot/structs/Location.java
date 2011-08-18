@@ -64,6 +64,8 @@ public class Location {
     }
 
     public Vector toVector(){
-        return new Vector((int)X, (int)Y, (int)Z);
+        /* Truncating is no good, we gotta round this data */
+        /* Data needs to be rounded down for block positions, which is what I use this for */
+        return new Vector((int)Math.floor(X), (int)Math.floor(Y), (int)Math.floor(Z));
     }
 }

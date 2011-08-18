@@ -43,25 +43,27 @@ public class Chunk {
         return (this.x == x && this.z == z);
     }
 
-    public Block getRelativeBlockAt(int x, int y, int z){
-        return new Block(world, this, getChunkBlockLocation(new Vector(x,y,z)), getRelativeInfoFor(x,y,z));
+    public Vector getAbsoluteLocation(){
+        return new Vector(x * 16, 0 , z * 16);
     }
 
-    public Vector getChunkBlockLocation(Vector blockLocation){
-        Vector chunkLoc = getFullLocation();
-        return new Vector(chunkLoc.X + blockLocation.X, blockLocation.Y, chunkLoc.Z = blockLocation.Z);
+    public Vector getAbsoluteLocation(Vector offset){
+        Vector abs = getAbsoluteLocation();
+        return new Vector(
+                abs.X + offset.X,
+                offset.Y,
+                abs.Z + offset.Z);
     }
 
-    public Vector getFullLocation(){
-        return new Vector(x << 4, 0 , z << 4);
-    }
-
-    public BlockInfo getRelativeInfoFor(int x, int y, int z){
-        if(x < 1 || x > 16) return null;
-        if(z < 1 || z > 16) return null;
-        if(y < 1 || y > 128) return null;
-        x--;y--;z--;
-        int index = y + (z * 128) + (x * 128 * 16);
+    private BlockInfo getInfo(Vector location){
+        if(location.X < 1 || location.X > 16) return null;
+        if(location.Z < 1 || location.Z > 16) return null;
+        if(location.Y < 1 || location.Y > 128) return null;
+        int index = (location.Y - 1) + ((location.Z - 1) * 128) + ((location.X - 1) * 128 * 16);
         return new BlockInfo(blockTypes[index], blockData[index], blockLight[index], skyLight[index]);
+    }
+
+    public Block getBlock(Vector location) {
+        return new Block(this.world, this, getAbsoluteLocation(location), getInfo(location));
     }
 }

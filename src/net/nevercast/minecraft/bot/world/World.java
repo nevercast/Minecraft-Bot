@@ -55,8 +55,17 @@ public class World {
         return loadedChunks.size();
     }
 
-    public Chunk getChunkAt(Location location){
-        return getChunk((int)location.X >> 4, (int)location.Z >> 4);
+    public Block getBlockAt(Vector location){
+        Chunk c = getChunkAt(location);
+        return c.getBlock(getBlockRelativePosition(location));
+    }
+
+    public Vector getBlockRelativePosition(Vector location){
+        return new Vector(Math.abs(location.X) % 16, location.Y, Math.abs(location.Z) % 16);
+    }
+
+    public Chunk getChunkAt(Vector location){
+        return getChunk(location.X / 16, location.Z / 16);
     }
 
     public Chunk[] getLoadedChunks(){
@@ -76,26 +85,24 @@ public class World {
         System.arraycopy(decompressedData, typeData.length + metaData.length, lightData, 0, lightData.length);
         byte[] skyData = new byte[metaData.length];
         System.arraycopy(decompressedData, typeData.length + metaData.length + lightData.length, skyData, 0, skyData.length);
-        int chunkX = location.X >> 4;
-        int chunkZ = location.Z >> 4;
+        int chunkX = location.X / 16;
+        int chunkZ = location.Z / 16;
         if(!isChunkLoaded(chunkX, chunkZ)){
             initChunk(chunkX, chunkZ);
         }
         Chunk chunk = getChunk(chunkX, chunkZ);
-        //entire chunk
-        if(length == 81920){
-            //System.out.println("Full chunk update: " + chunkX + ", " + chunkZ);
-            chunk.blockTypes = typeData;
-            for(int i = 0; i < metaData.length; i++){
-                chunk.blockData[i * 2] = (byte)(metaData[i] & 0x0F);
-                chunk.blockData[i * 2 + 1] = (byte)(metaData[i] >> 4);
-                chunk.blockLight[i * 2] = (byte)(lightData[i] & 0x0F);
-                chunk.blockLight[i * 2 + 1] = (byte)(lightData[i] >> 4);
-                chunk.skyLight[i * 2] = (byte)(skyData[i] & 0x0F);
-                chunk.skyLight[i * 2 + 1] = (byte)(skyData[i] >> 4);
+
+        Vector rel = getBlockRelativePosition(location);
+        int x1 = rel.X;
+        int z1 = rel.Y;
+        int xs = x1 + size.X;
+        int zs = z1 + size.Z;
+        for(int x = x1; x < xs; x++){
+            for(int z = z1; z < zs; z++){
+                int srcIdx = location.Y + (z * size.Y) + (x * size.Y * size.Z);
+                int dstIdx = location.Y + (z * 128) + (x * 128 * 16);
+                System.arraycopy(typeData, srcIdx, chunk.blockTypes, dstIdx, size.Y);
             }
-        }else{
-            //System.out.println("Unsupported small chunk update: " + chunkX + ", " + chunkZ);
         }
     }
 }
